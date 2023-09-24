@@ -28,11 +28,12 @@ import {
   IconSun,
   IconTrash,
 } from "@tabler/icons-react";
-import { useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import ClearChatsButton from "./ClearChatsButton";
 import KeyModal from "./KeyModal";
 import SettingsModal from "./SettingsModal";
 import { useRouter } from "next/router";
+import { Snippet } from "@/stores/Snippet";
 import {
   clearChats,
   deleteChat,
@@ -147,6 +148,9 @@ export default function NavbarSimple() {
   const chats = useChatStore((state) => state.chats);
   const navOpened = useChatStore((state) => state.navOpened);
 
+  const snippets = useChatStore((state) => state.snippets);
+  const activeSnippetId = useChatStore((state) => state.activeSnippetId);
+
   const [editedTitle, setEditedTitle] = useState("");
 
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
@@ -244,26 +248,48 @@ export default function NavbarSimple() {
 
   links.reverse();
 
-  const submitEditedTitle = () => {
-    if (editedTitle.trim()) {
-      updateChat({ id: activeChatId, title: editedTitle });
-    }
-    closeTitleModal();
-  };
-  const editTitleInputRef = useRef<HTMLInputElement>(null);
+  
 
-  return (
-    <Navbar
-      height={"100%"}
-      p="md"
-      hiddenBreakpoint="sm"
-      hidden={!navOpened}
-      width={{ sm: 200, lg: 250 }}
-      sx={{ zIndex: 1001 }}
+  const snippetLinks = snippets.map((snippet: Snippet) => (
+    <Group
+      position="apart"
+      key={snippet.id}
+      sx={{
+        position: "relative",
+        maskImage:
+          snippet.id === activeSnippetId
+            ? ""
+            : "linear-gradient(to right, black 80%, transparent 110%)",
+      }}
     >
-      <MediaQuery smallerThan="sm" styles={{ display: "none" }}>
-        <Navbar.Section className={classes.header}>
-          <a
+      <a
+        className={cx(classes.link, {
+          [classes.linkActive]: snippet.id === activeSnippetId,
+        })}
+        href="#"
+        onClick={(event: React.MouseEvent) => {
+          event.preventDefault();
+          router.push(`/snippets/${snippet.id}`);
+          if (isSmall) {
+            setNavOpened(false);
+          }
+        }}
+      >
+        <Box>
+          <Text size="xs" weight={500} color="dimmed" truncate>
+            {snippet.id || "Untitled"}
+          </Text>
+        </Box>
+      </a>
+    </Group>
+  ));
+
+  snippetLinks.reverse();
+
+
+  const newChatButton = () => {
+    return (
+      <a
             href="#"
             className={classes.link}
             onClick={(event) => {
@@ -283,9 +309,55 @@ export default function NavbarSimple() {
               />
             </MediaQuery>
           </a>
+    );
+  }
+
+  const newSnippetButton = () => {
+    return (
+      <a
+            href="#"
+            className={classes.link}
+            onClick={(event) => {
+              event.preventDefault();
+              router.push("/snippets");
+            }}
+          >
+            <IconPlus className={classes.linkIcon} stroke={1.5} />
+            <span>New Snippet</span>
+            <MediaQuery largerThan="sm" styles={{ display: "none" }}>
+              <Burger
+                opened={navOpened}
+                onClick={() => setNavOpened(!navOpened)}
+                size="sm"
+                color={theme.colors.gray[6]}
+                mr="xl"
+              />
+            </MediaQuery>
+          </a>
+    );
+  }
+  const submitEditedTitle = () => {
+    if (editedTitle.trim()) {
+      updateChat({ id: activeChatId, title: editedTitle });
+    }
+    closeTitleModal();
+  };
+  const editTitleInputRef = useRef<HTMLInputElement>(null);
+
+  return (
+    <Navbar
+      height={"100%"}
+      p="md"
+      hiddenBreakpoint="sm"
+      hidden={!navOpened}
+      width={{ sm: 200, lg: 250 }}
+      sx={{ zIndex: 1001 }}
+    >
+      <MediaQuery smallerThan="sm" styles={{ display: "none" }}>
+        <Navbar.Section className={classes.header}>
+          {newChatButton()}
         </Navbar.Section>
       </MediaQuery>
-
       <MediaQuery smallerThan="sm" styles={{ marginTop: rem(36) }}>
         <Navbar.Section
           grow
@@ -300,6 +372,29 @@ export default function NavbarSimple() {
           {links}
         </Navbar.Section>
       </MediaQuery>
+
+      
+      <MediaQuery smallerThan="sm" styles={{ display: "none" }}>
+        <Navbar.Section className={classes.header}>
+          {newSnippetButton()}
+        </Navbar.Section>
+      </MediaQuery>
+
+      <MediaQuery smallerThan="sm" styles={{ marginTop: rem(36) }}>
+        <Navbar.Section
+          grow
+          mx="-xs"
+          px="xs"
+          className={classes.scrollbar}
+          style={{
+            overflowX: "hidden",
+            overflowY: "scroll",
+          }}
+        >
+          {snippetLinks}
+        </Navbar.Section>
+      </MediaQuery>
+      
       <Navbar.Section className={classes.footer}>
         {links?.length > 0 && (
           <ClearChatsButton

@@ -1,6 +1,7 @@
 import { IncomingMessage } from "http";
 import https from "https";
-import { Message, truncateMessages, countTokens } from "./Message";
+import { Message, truncateMessages, countTokens, messageContent } from "./Message";
+import { Snippet } from "./Snippet";
 import { getModelInfo } from "./Model";
 import axios from "axios";
 
@@ -114,6 +115,7 @@ const paramKeys = [
 
 export async function streamCompletion(
   messages: Message[],
+  snippets: Snippet[],
   params: ChatCompletionParams,
   apiKey: string,
   abortController?: AbortController,
@@ -126,6 +128,7 @@ export async function streamCompletion(
   // Truncate messages to fit within maxTokens parameter
   const submitMessages = truncateMessages(
     messages,
+    snippets,
     modelInfo.maxTokens,
     params.max_tokens
   );
@@ -135,7 +138,7 @@ export async function streamCompletion(
   );
 
   const payload = JSON.stringify({
-    messages: submitMessages.map(({ role, content }) => ({ role, content })),
+    messages: submitMessages.map((message: Message) => ({ role: message.role, content: messageContent(message, snippets) })),
     stream: true,
     ...{
       ...submitParams,

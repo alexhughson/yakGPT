@@ -106,6 +106,7 @@ export const submitMessage = async (message: Message) => {
   // ASSISTANT REQUEST
   await streamCompletion(
     chat.messages,
+    get().snippets,
     settings,
     apiKey,
     abortController,
@@ -187,6 +188,7 @@ export const submitMessage = async (message: Message) => {
 
       await streamCompletion(
         [msg, ...chat.messages.slice(1)],
+        get().snippets,
         settings,
         apiKey,
         undefined,
