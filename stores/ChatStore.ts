@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { Message } from "./Message";
 import { persist } from "zustand/middleware";
 import { Chat } from "./Chat";
+import { Snippet } from "./Snippet";
 import { SpeechRecognizer } from "microsoft-cognitiveservices-speech-sdk";
 import type { AudioChunk } from "./PlayerActions";
 
@@ -96,6 +97,9 @@ export interface ChatState {
   defaultSettings: SettingsForm;
   navOpened: boolean;
 
+  snippets: Snippet[];
+  activeSnippetId: string | undefined;
+
   pushToTalkMode: boolean;
   recorder: MediaRecorder | undefined;
   recognizer: SpeechRecognizer | undefined;
@@ -139,6 +143,11 @@ export const initialState = {
   playerMode: false,
   pushToTalkMode: false,
   editingMessage: undefined,
+
+  snippets: [
+    { id: "exampleSnippet", content: "When you respond, mention that a snippet was used"}
+  ],
+  activeSnippetId: undefined,
 
   recorder: undefined,
   recognizer: undefined,

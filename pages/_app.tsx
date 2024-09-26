@@ -13,7 +13,6 @@ import { useChatStore } from "@/stores/ChatStore";
 
 import Nav from "@/components/Nav";
 import { useEffect, useState } from "react";
-import UIController from "@/components/UIController";
 import { setColorScheme } from "@/stores/ChatActions";
 import AudioPlayer from "@/components/AudioPlayer";
 
@@ -109,8 +108,6 @@ export default function App(props: AppProps) {
           >
             <div style={{ position: "relative", height: "100%" }}>
               <Component {...pageProps} />
-
-              {apiKey && <UIController />}
             </div>
             {playerMode && <AudioPlayer />}
           </AppShell>

@@ -11,6 +11,7 @@ import NewChat from "./NewChat";
 import MuHeader from "./MuHeader";
 
 import ChatMessage from "./ChatMessage";
+import UIController from "@/components/UIController";
 import { IconChevronsDown } from "@tabler/icons-react";
 import { useRouter } from "next/router";
 import { setActiveChatId } from "@/stores/ChatActions";
@@ -186,7 +187,9 @@ const ChatDisplay = () => {
           <IconChevronsDown size={px("1.1rem")} stroke={1.5} />
         </ActionIcon>
       )}
+          <UIController />
     </div>
+
   );
 };
 
